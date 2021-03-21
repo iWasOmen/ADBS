@@ -1,10 +1,13 @@
 package ed.inf.adbs.lightdb;
 
-import java.io.FileReader;
-
+//import jdk.internal.org.objectweb.asm.Type;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+
+import java.io.FileReader;
 
 /**
  * Lightweight in-memory database system
@@ -23,7 +26,18 @@ public class LightDB {
 		String inputFile = args[1];
 		String outputFile = args[2];
 
-		parsingExample(inputFile);
+		String tablename = parsingExample(inputFile);
+		Expression exp = parsingExpression(inputFile);
+		Scan scan = new Scan(databaseDir,tablename);
+		//scan.dump();
+		ed.inf.adbs.lightdb.Select sel = new ed.inf.adbs.lightdb.Select(exp,scan);
+		sel.getNextTuple();
+		sel.getNextTuple();
+		sel.getNextTuple();
+		sel.getNextTuple();
+
+
+
 	}
 
 	/**
@@ -32,18 +46,49 @@ public class LightDB {
 	 * prints it to screen.
 	 */
 
-	public static void parsingExample(String filename) {
+	public static String parsingExample(String filename) {
 		try {
 			Statement statement = CCJSqlParserUtil.parse(new FileReader(filename));
-//            Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Boats");
+            //Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Sailors S1, Sailors S2  WHERE S1.A < S2.A ORDER BY Sailors.B");
 			if (statement != null) {
 				System.out.println("Read statement: " + statement);
 				Select select = (Select) statement;
-				System.out.println("Select body is " + select.getSelectBody());
+				System.out.println("Select body: " + select.getSelectBody());
+				PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
+				System.out.println("PlainSelect: " + plainSelect);
+				System.out.println("PlainSelect.getFromItem: " + plainSelect.getFromItem().getClass());
+				System.out.println("PlainSelect.getWhere: " + plainSelect.getWhere());
+				System.out.println("PlainSelect.getJoins: " + plainSelect.getJoins());
+				System.out.println("PlainSelect.getOrderByElements: " + plainSelect.getOrderByElements());
+				System.out.println("PlainSelect.getOrderByElements: " + plainSelect.getWhere());
+
+				String tableName = plainSelect.getFromItem().toString();
+				return tableName;
+
 			}
 		} catch (Exception e) {
 			System.err.println("Exception occurred during parsing");
 			e.printStackTrace();
 		}
+
+		return null;
+	}
+	public static Expression parsingExpression(String filename) {
+		try {
+			Statement statement = CCJSqlParserUtil.parse(new FileReader(filename));
+			//Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Sailors S1, Sailors S2  WHERE S1.A < S2.A ORDER BY Sailors.B");
+			if (statement != null) {
+				System.out.println("Read statement: " + statement);
+				Select select = (Select) statement;
+				PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
+				return plainSelect.getWhere();
+
+			}
+		} catch (Exception e) {
+			System.err.println("Exception occurred during parsing");
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 }

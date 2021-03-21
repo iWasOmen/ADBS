@@ -1,0 +1,1 @@
+SELECT * FROM Sailors Where 1 = 2 AND 4 = 4
