@@ -26,15 +26,23 @@ public class LightDB {
 		String inputFile = args[1];
 		String outputFile = args[2];
 
-		String tablename = parsingExample(inputFile);
-		Expression exp = parsingExpression(inputFile);
-		Scan scan = new Scan(databaseDir,tablename);
-		//scan.dump();
-		ed.inf.adbs.lightdb.Select sel = new ed.inf.adbs.lightdb.Select(exp,scan);
-		sel.getNextTuple();
-		sel.getNextTuple();
-		sel.getNextTuple();
-		sel.getNextTuple();
+		DBCatalog dbc = DBCatalog.getInstance();
+		dbc.setDatabaseDir(databaseDir);
+
+		QueryPlan queryPlan = new QueryPlan(inputFile);
+		queryPlan.excute();
+
+//
+//		String tablename = parsingExample(inputFile);
+//		Expression exp = parsingExpression(inputFile);
+//		ScanOperator scan = new ScanOperator(tablename);
+//		//scan.dump();
+//		SelectOperator sel = new SelectOperator(exp,scan);
+//		sel.dump();
+
+		//sel.getNextTuple();
+		//sel.getNextTuple();
+		//sel.getNextTuple();
 
 
 

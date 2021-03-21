@@ -5,15 +5,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class Scan extends Operator {
+public class ScanOperator extends Operator {
     private String dir;
     private BufferedReader br;
 
-    public Scan(String databaseDir,String tableName){
+    public ScanOperator(String tableName){
         try
         {
             DBCatalog dbc = DBCatalog.getInstance();
-            dir = databaseDir + dbc.getTablePath(tableName);
+            dir = dbc.getTablePath(tableName);
             FileReader fr = new FileReader(dir);
             br = new BufferedReader(fr);
         }

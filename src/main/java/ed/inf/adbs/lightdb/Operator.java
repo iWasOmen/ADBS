@@ -8,10 +8,9 @@ public abstract class Operator {
     public abstract void reset();
 
     public void dump(){
-        Tuple tuple = getNextTuple();
-        while(tuple != null) {
-            System.out.println(Arrays.toString(tuple.getTupleArray()));
-            tuple = getNextTuple();
+        Tuple tuple;
+        while((tuple = getNextTuple()) != null) {
+            System.out.println("right tuple:" + Arrays.toString(tuple.getTupleArray()));
         }
     }
 

@@ -1,1 +1,1 @@
-SELECT * FROM Sailors Where 1 = 2 AND 4 = 4
+SELECT Sailors.B, Sailors.A FROM Sailors Where Sailors.A  > 2 AND Sailors.B < 300 AND 1 = 1
