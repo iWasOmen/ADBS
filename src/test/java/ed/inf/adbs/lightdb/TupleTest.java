@@ -11,7 +11,7 @@ public class TupleTest {
 
     @Test
     public void getTuple(){
-        Tuple tuple = new Tuple("104,104,2");
+        Tuple tuple = new Tuple("104,104,2","qq");
         System.out.println(Arrays.toString(tuple.getTupleArray()));
     }
 }

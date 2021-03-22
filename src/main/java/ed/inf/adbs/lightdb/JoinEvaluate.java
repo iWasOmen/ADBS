@@ -2,54 +2,41 @@ package ed.inf.adbs.lightdb;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Stack;
 
-public class SelectEvaluate {
+public class JoinEvaluate {
     private Expression parseExpression;
-    private Tuple tuple;
+    private Tuple leftTuple;
+    private Tuple rightTuple;
 
-    public SelectEvaluate(Expression parseExpression) {
+    public JoinEvaluate(Expression parseExpression) {
         this.parseExpression = parseExpression;
     }
 
-    public boolean evaluate(Tuple tuple) {
+    public Boolean evaluate(Tuple leftTuple, Tuple rightTuple){
         final Stack<Long> stackLong = new Stack<Long>();
         final Stack<Boolean> stackBool = new Stack<Boolean>();
-        //System.out.println("--------------------------------------------");
-        //System.out.println("tuple：" + Arrays.toString(tuple.getTupleArray()));
-        //System.out.println("expression：" + parseExpression);
+        //Tuple tuple;
+        System.out.println("---------------------join-----------------------");
+        System.out.println("leftTuple：" + Arrays.toString(leftTuple.getTupleArray()));
+        System.out.println("rightTuple：" + Arrays.toString(rightTuple.getTupleArray()));
+        System.out.println("expression：" + parseExpression);
         ExpressionDeParser deparser = new ExpressionDeParser() {
             @Override
-            public void visit(AndExpression andExpression) {
-                //System.out.println("this and 1");
-                super.visit(andExpression);
-                //System.out.println("this and 2");
-
-                Boolean exp1 = stackBool.pop();
-                Boolean exp2 = stackBool.pop();
-
-                stackBool.push(exp1 & exp2 );
-                //System.out.println("this and 3");
-            }
-
-            @Override
             public void visit(Column column) {
-                //System.out.println("this column 1");
                 super.visit(column);
-                //System.out.println("this column 2");
-                //DBCatalog dbc = DBCatalog.getInstance();
-                //dbc.setDatabaseDir("samples/db");
-                //System.out.println("tableName:"+column.getColumnName());
+                Tuple tuple;
                 String tableName = column.getTable().getName();
                 String columnName = column.getColumnName();
-                //column.getTable().getAlias()
+                if (tableName.equals(leftTuple.getTupleTableName()))
+                    tuple = leftTuple;
+                else
+                    tuple = rightTuple;
                 long columNumber = tuple.getTupleNumber(columnName);
 //                System.out.println("Schemaneed:" + tableName);
 //                System.out.println("columnneed:" + columnName);
@@ -63,28 +50,20 @@ public class SelectEvaluate {
 
             @Override
             public void visit(LongValue longValue) {
-                //System.out.println("this long 1");
                 super.visit(longValue);
-                //System.out.println("this long 2");
-                //System.out.println("longValueClass"+longValue.getClass());
                 stackLong.push(longValue.getValue());
-                //System.out.println("this long 3");
             }
 
             @Override
             public void visit(EqualsTo equalsTo) {
-                //System.out.println("this equalsTo 1");
                 super.visit(equalsTo);
-                //System.out.println("this equalsTo 2");
 
                 Long exp1 = stackLong.pop();
                 Long exp2 = stackLong.pop();
-                if(exp1.equals(exp2))
-                    stackBool.push(true );
+                if (exp1.equals(exp2))
+                    stackBool.push(true);
                 else
-                    stackBool.push(false );
-
-                //System.out.println("this equalsTo 3");
+                    stackBool.push(false);
             }
 
             @Override
@@ -93,10 +72,10 @@ public class SelectEvaluate {
 
                 Long exp1 = stackLong.pop();
                 Long exp2 = stackLong.pop();
-                if(!exp1.equals(exp2))
-                    stackBool.push(true );
+                if (!exp1.equals(exp2))
+                    stackBool.push(true);
                 else
-                    stackBool.push(false );
+                    stackBool.push(false);
 
             }
 
@@ -106,10 +85,10 @@ public class SelectEvaluate {
 
                 Long exp2 = stackLong.pop();
                 Long exp1 = stackLong.pop();
-                if(exp1 > exp2)
-                    stackBool.push(true );
+                if (exp1 > exp2)
+                    stackBool.push(true);
                 else
-                    stackBool.push(false );
+                    stackBool.push(false);
 
             }
 
@@ -119,10 +98,10 @@ public class SelectEvaluate {
 
                 Long exp2 = stackLong.pop();
                 Long exp1 = stackLong.pop();
-                if(exp1 >= exp2)
-                    stackBool.push(true );
+                if (exp1 >= exp2)
+                    stackBool.push(true);
                 else
-                    stackBool.push(false );
+                    stackBool.push(false);
 
             }
 
@@ -132,10 +111,10 @@ public class SelectEvaluate {
 
                 Long exp2 = stackLong.pop();
                 Long exp1 = stackLong.pop();
-                if(exp1 < exp2)
-                    stackBool.push(true );
+                if (exp1 < exp2)
+                    stackBool.push(true);
                 else
-                    stackBool.push(false );
+                    stackBool.push(false);
 
             }
 
@@ -145,21 +124,18 @@ public class SelectEvaluate {
 
                 Long exp2 = stackLong.pop();
                 Long exp1 = stackLong.pop();
-                if(exp1 <= exp2)
-                    stackBool.push(true );
+                if (exp1 <= exp2)
+                    stackBool.push(true);
                 else
-                    stackBool.push(false );
-
+                    stackBool.push(false);
             }
-
         };
-        //System.out.println("final 1");
+
         StringBuilder b = new StringBuilder();
         deparser.setBuffer(b);
         parseExpression.accept(deparser);
         boolean result = (boolean)stackBool.pop();
-        //System.out.println("result:" + result +"\n");
-        //System.out.println("final 2");
+        System.out.println("result:" + result +"\n");
         return result;
     }
 }

@@ -1,1 +1,1 @@
-SELECT Sailors.B, Sailors.A FROM Sailors Where Sailors.A  > 2 AND Sailors.B < 300 AND 1 = 1
+SELECT Sailors.B FROM Sailors,Reserves Where Sailors.A  > 2 AND Reserves.H < Sailors.C
