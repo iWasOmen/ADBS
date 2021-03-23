@@ -9,6 +9,7 @@ public class DBCatalog {
     private String databaseDir;
     private String tableDir;
     private String tableSchemaDir;
+    private static String CONSTANT_TABLE_NAME= "CONSTANT_TABLE";
     private static DBCatalog instance=new DBCatalog();
 
     private DBCatalog(){
@@ -52,4 +53,7 @@ public class DBCatalog {
         return null;
     }
 
+    public String getConstantTableName(){
+        return CONSTANT_TABLE_NAME;
+    }
 }

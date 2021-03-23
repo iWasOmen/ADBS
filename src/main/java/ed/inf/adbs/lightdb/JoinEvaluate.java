@@ -2,6 +2,7 @@ package ed.inf.adbs.lightdb;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
@@ -22,18 +23,30 @@ public class JoinEvaluate {
         final Stack<Long> stackLong = new Stack<Long>();
         final Stack<Boolean> stackBool = new Stack<Boolean>();
         //Tuple tuple;
-        System.out.println("---------------------join-----------------------");
-        System.out.println("leftTuple：" + Arrays.toString(leftTuple.getTupleArray()));
-        System.out.println("rightTuple：" + Arrays.toString(rightTuple.getTupleArray()));
-        System.out.println("expression：" + parseExpression);
+        //System.out.println("---------------------join-----------------------");
+        //System.out.println("leftTuple：" + Arrays.toString(leftTuple.getTupleArray()));
+        //System.out.println("rightTuple：" + Arrays.toString(rightTuple.getTupleArray()));
+        //System.out.println("expression：" + parseExpression);
         ExpressionDeParser deparser = new ExpressionDeParser() {
+            @Override
+            public void visit(AndExpression andExpression) {
+                //System.out.println("this and 1");
+                super.visit(andExpression);
+                //System.out.println("this and 2");
+
+                Boolean exp2 = stackBool.pop();
+                Boolean exp1 = stackBool.pop();
+
+                stackBool.push(exp1 & exp2 );
+                //System.out.println("this and 3");
+            }
             @Override
             public void visit(Column column) {
                 super.visit(column);
                 Tuple tuple;
                 String tableName = column.getTable().getName();
                 String columnName = column.getColumnName();
-                if (tableName.equals(leftTuple.getTupleTableName()))
+                if (leftTuple.getTupleTableName().contains(tableName))
                     tuple = leftTuple;
                 else
                     tuple = rightTuple;
@@ -135,7 +148,7 @@ public class JoinEvaluate {
         deparser.setBuffer(b);
         parseExpression.accept(deparser);
         boolean result = (boolean)stackBool.pop();
-        System.out.println("result:" + result +"\n");
+        //System.out.println("result:" + result +"\n");
         return result;
     }
 }

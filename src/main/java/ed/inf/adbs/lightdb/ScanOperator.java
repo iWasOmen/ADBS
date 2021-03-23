@@ -57,4 +57,8 @@ public class ScanOperator extends Operator {
             e.printStackTrace();
         }
     }
+
+    public String getTableName(){
+        return tableName;
+    }
 }

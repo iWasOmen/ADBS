@@ -7,6 +7,9 @@ public abstract class Operator {
     public abstract Tuple getNextTuple();
     public abstract void reset();
 
+    public abstract String getTableName();
+
+
     public void dump(){
         Tuple tuple;
         while((tuple = getNextTuple()) != null) {

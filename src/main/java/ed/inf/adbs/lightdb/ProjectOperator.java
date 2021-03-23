@@ -34,4 +34,9 @@ public class ProjectOperator extends Operator {
     public void reset() {
         child.reset();
     }
+
+    @Override
+    public String getTableName() {
+        return null;
+    }
 }

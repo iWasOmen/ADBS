@@ -29,8 +29,8 @@ public class LightDB {
 		DBCatalog dbc = DBCatalog.getInstance();
 		dbc.setDatabaseDir(databaseDir);
 
-		QueryPlan queryPlan = new QueryPlan(inputFile);
-		queryPlan.excute();
+		Interpreter interpreter = new Interpreter(inputFile);
+		interpreter.excute();
 
 //
 //		String tablename = parsingExample(inputFile);

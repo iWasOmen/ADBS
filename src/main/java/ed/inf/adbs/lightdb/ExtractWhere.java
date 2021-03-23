@@ -6,11 +6,16 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
 
+import javax.print.DocFlavor;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class ExtractWhere {
     ExpressionList selectExpressionList = new ExpressionList();
     ExpressionList whereExpressionList = new ExpressionList();
+    List<String> selectTableNames = new ArrayList<>();
+    //List<String> whereTableNames = new ArrayList<>();
 
     public ExtractWhere(Expression parseExpression) {
         final Stack<Expression> stackExpression = new Stack<Expression>();
@@ -19,6 +24,7 @@ public class ExtractWhere {
 
             //compare two expression, and decide to add to which ExpressionList
             public void compareExpression(Expression expression) {
+                DBCatalog dbc = DBCatalog.getInstance();
                 Expression exp2 = stackExpression.pop();
                 Expression exp1 = stackExpression.pop();
                 String str2 = stackString.pop();
@@ -26,15 +32,27 @@ public class ExtractWhere {
                 //both or one of exp is long, add to oneSelectExpression
                 if (exp1.getClass() == LongValue.class || exp2.getClass() == LongValue.class) {
                     selectExpressionList.addExpressions(expression);
+                    if(exp1.getClass() == Column.class)
+                        selectTableNames.add(str1);
+                    else if(exp2.getClass() == Column.class)
+                        selectTableNames.add(str2);
+                    else
+                        selectTableNames.add(dbc.getConstantTableName());
                 }
                 //both of two exps are columns
                 else {
                     //two exps have same table names, add to oneSelectExpression
-                    if (str2.equals(str1))
-                        selectExpressionList.addExpressions(expression);
+                    if (str2.equals(str1)) {
+                        selectExpressionList.addExpressions(expression, expression);
+                        selectTableNames.add(str1);
+                    }
+                        //selectExpressionList.addExpressions(expression);
                         //two exps have different table name, add to oneWhereExpression
-                    else
+                    else {
                         whereExpressionList.addExpressions(expression);
+                        //whereTableNames.add(str1);
+                        //whereTableNames.add(str2);
+                    }
                 }
             }
 
@@ -126,5 +144,13 @@ public class ExtractWhere {
         //return whereExpressionList;
         return whereExpressionList;
     }
+
+    public List<String> getSelectTableNames(){
+        return selectTableNames;
+    }
+
+//    public List<String> getWhereTableNames(){
+//        return whereTableNames;
+//    }
 
 }
