@@ -48,9 +48,9 @@ public class SelectEvaluate {
                 //dbc.setDatabaseDir("samples/db");
                 //System.out.println("tableName:"+column.getColumnName());
                 String tableName = column.getTable().getName();
-                String columnName = column.getColumnName();
+                String tableColumnName = column.toString();
                 //column.getTable().getAlias()
-                long columNumber = tuple.getTupleNumber(columnName);
+                long columNumber = tuple.getTupleNumber(tableColumnName);
 //                System.out.println("Schemaneed:" + tableName);
 //                System.out.println("columnneed:" + columnName);
 //                System.out.println("Schemaget:" + Arrays.toString(tableSchema));

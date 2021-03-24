@@ -16,7 +16,8 @@ public class ProjectOperator extends Operator {
         for(int i=0; i < selectItems.size(); i++){
             String[] temp = selectItems.get(i).toString().split("\\.");
             selectTables.add(temp[0]);
-            selectColumns.add(temp[1]);
+            //selectColumns.add(temp[1]);
+            selectColumns.add(selectItems.get(i).toString());
         }
     }
 

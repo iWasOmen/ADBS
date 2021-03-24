@@ -114,7 +114,7 @@ public class QueryPlan {
         lastWhereTableNamesKey.add(tableNames.get(0));
         for(int i = 0; i < tableNames.size()-1; i++){
             Expression newExpression = null;
-            System.out.println("newExpression:"+newExpression);
+            //System.out.println("newExpression:"+newExpression);
             //new AndExpression();
             //new AndExpression(CCJSqlParserUtil.parse("1=1"));
             Set<String> whereTableNamesKey = new HashSet<>();
@@ -205,7 +205,7 @@ public class QueryPlan {
         if (selectExpressionList != null)
             selectTableNamesExpressionMap = conncetSelectExpressions();
         if(oringinalTableNames.size() > 1) {
-            System.out.println("whereExpressionList:" + whereTableNames);
+            //System.out.println("whereExpressionList:" + whereTableNames);
             whereTableNamesExpressionMap = conncetWhereExpressions(tableNames);
         }
 

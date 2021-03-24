@@ -45,12 +45,19 @@ public class JoinEvaluate {
                 super.visit(column);
                 Tuple tuple;
                 String tableName = column.getTable().getName();
-                String columnName = column.getColumnName();
-                if (leftTuple.getTupleTableName().contains(tableName))
+                //String columnName = column.getColumnName();
+                String tableColumnName = column.getFullyQualifiedName();
+                //System.out.println("qqqqqtableColumnName"+tableColumnName);
+                //System.out.println("11111tableName"+tableName);
+                if (leftTuple.getTupleTableName().contains(tableName)) {
                     tuple = leftTuple;
-                else
+                    //System.out.println("leftTuple");
+                }
+                else {
                     tuple = rightTuple;
-                long columNumber = tuple.getTupleNumber(columnName);
+                    //System.out.println("rightTuple");
+                }
+                long columNumber = tuple.getTupleNumber(tableColumnName);
 //                System.out.println("Schemaneed:" + tableName);
 //                System.out.println("columnneed:" + columnName);
 //                System.out.println("Schemaget:" + Arrays.toString(tableSchema));

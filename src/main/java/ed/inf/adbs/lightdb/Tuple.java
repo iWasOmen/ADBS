@@ -17,6 +17,7 @@ public class Tuple {
         this.tupleTableName = tupleTableName;
         DBCatalog dbc = DBCatalog.getInstance();
         tupleSchema = dbc.getTableSchema(tupleTableName);
+        //System.out.println("tupleSchema111:"+tupleSchema.toString());
         String[] temp = tupleStr.split(",");
         tuple = new long[temp.length];
         for (int i = 0; i < temp.length; i++) {
@@ -37,6 +38,7 @@ public class Tuple {
         this.tuple = newTuple;
         this.tupleTableName = newTupleTableName;
         this.tupleSchema = newTupleSchema;
+        //System.out.println("tupleSchema:"+newTupleSchema);
 
     }
 
@@ -45,15 +47,20 @@ public class Tuple {
         return tuple;
     }
 
-    public long getTupleNumber(String columnName) {
+    public long getTupleNumber(String tableColumnName) {
         //不支持同名column
         HashMap<String, Long> schemaTupleMap = new HashMap<>();
         for (int i = 0; i < tuple.length; i++) {
+            //System.out.println("tupleTableName:"+tupleTableName);
+            //System.out.println("tableColumnName:"+tableColumnName);
+            //schemaTupleMap.put(tupleSchema[0] + "." + tupleSchema[i + 1], tuple[i]);
             schemaTupleMap.put(tupleSchema[i + 1], tuple[i]);
+            //schemaTupleMap.put(tupleSchema[i + 1], tuple[i]);
+            //System.out.println("schemaTupleMap:"+schemaTupleMap);
         }
         //System.out.println("schemaTupleMap:"+schemaTupleMap);
-        //System.out.println("columnName"+columnName);
-        return schemaTupleMap.get(columnName);
+        //System.out.println("tableColumnName:"+tableColumnName);
+        return schemaTupleMap.get(tableColumnName);
     }
 
     public void projectTuple(List<String> selectTables, List<String> selectColums) {

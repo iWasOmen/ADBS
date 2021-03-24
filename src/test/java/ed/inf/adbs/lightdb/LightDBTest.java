@@ -20,7 +20,20 @@ public class LightDBTest{
 
 	@Test
 	public void mainTest(){
-		String[] args = new String[]{"samples/db", "samples/input/query6.sql", "samples/output/query4.csv"};
+		String j = null;
+		for(int i = 1; i<13; i++) {
+			j = String.valueOf(i);
+			String[] args = new String[]{"samples/db", "samples/input/query" + j + ".sql", "samples/output/query4.csv"};
+			LightDB.main(args);
+		}
+		//LightDB.main(args);
+	}
+
+	@Test
+	public void mainSingleTest(){
+		String[] args = new String[]{"samples/db", "samples/input/query2.sql", "samples/output/query4.csv"};
 		LightDB.main(args);
+
+		//LightDB.main(args);
 	}
 }
