@@ -3,6 +3,8 @@ package ed.inf.adbs.lightdb;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.HashMap;
+import java.util.List;
 
 public class DBCatalog {
 
@@ -11,6 +13,7 @@ public class DBCatalog {
     private String tableSchemaDir;
     private static String CONSTANT_TABLE_NAME= "CONSTANT_TABLE";
     private static DBCatalog instance=new DBCatalog();
+    private HashMap<String, String[]> tableSchemaMap;
 
     private DBCatalog(){
 
@@ -28,8 +31,12 @@ public class DBCatalog {
         tableDir = databaseDir + File.separator + "data" + File.separator + tableName + ".csv";
         return tableDir;
     }
-    public String[] getTableSchema(String tableName){
+    public String[] setTableSchema(List<String> tableNames, List<String> oringinalTableNames){
+        tableSchemaMap = new HashMap<>();
         tableSchemaDir = databaseDir + File.separator + "schema.txt";
+        HashMap<String,String> oringinalTableNamesTableNamesMap = new HashMap<>();
+        for(int i = 0; i < tableNames.size(); i++)
+            oringinalTableNamesTableNamesMap.put(oringinalTableNames.get(i),tableNames.get(i));
         try
         {
             FileReader fr = new FileReader(tableSchemaDir);
@@ -40,8 +47,10 @@ public class DBCatalog {
             {
                 oneSchema = nextline.split(" ");
                 //System.out.println(oneSchema[0]);
-                if (oneSchema[0].equals(tableName))
-                    return oneSchema;
+                if (oringinalTableNamesTableNamesMap.containsKey(oneSchema[0])) {
+                    oneSchema[0] = oringinalTableNamesTableNamesMap.get(oneSchema[0]);
+                    tableSchemaMap.put(oneSchema[0],oneSchema);
+                }
             }
             //return br.readLine();
         }
@@ -51,6 +60,10 @@ public class DBCatalog {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String[] getTableSchema(String tableName){
+        return tableSchemaMap.get(tableName);
     }
 
     public String getConstantTableName(){

@@ -10,14 +10,14 @@ public class ScanTest {
     @Test
     public void dump() {
         dbc.setDatabaseDir("samples/db");
-        ScanOperator scan = new ScanOperator("Sailors");
+        ScanOperator scan = new ScanOperator("S","Sailors");
         scan.dump();
     }
 
     @Test
     public void reset(){
         dbc.setDatabaseDir("samples/db");
-        ScanOperator scan = new ScanOperator("Sailors");
+        ScanOperator scan = new ScanOperator("S","Sailors");
         System.out.println(Arrays.toString(scan.getNextTuple().getTupleArray()));
         System.out.println(Arrays.toString(scan.getNextTuple().getTupleArray()));
         System.out.println(Arrays.toString(scan.getNextTuple().getTupleArray()));

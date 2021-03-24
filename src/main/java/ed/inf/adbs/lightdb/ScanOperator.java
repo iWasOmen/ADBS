@@ -12,11 +12,11 @@ public class ScanOperator extends Operator {
     private BufferedReader br;
     private String tableName;
 
-    public ScanOperator(String tableName){
+    public ScanOperator(String tableName, String oringinalTableName){
         try
         {
             DBCatalog dbc = DBCatalog.getInstance();
-            dir = dbc.getTablePath(tableName);
+            dir = dbc.getTablePath(oringinalTableName);
             FileReader fr = new FileReader(dir);
             br = new BufferedReader(fr);
             this.tableName = tableName;

@@ -1,1 +1,1 @@
-SELECT Sailors.A,Reserves.G,Boats.D FROM Sailors,Boats,Reserves Where Boats.D  <= 104 AND Boats.D = Reserves.H AND 1=1 AND Reserves.H =104 AND Sailors.C < Boats.D AND Sailors.A =Reserves.G AND Sailors.B < Boats.E
+SELECT Sailors.A,Reserves.G,Boats.D FROM Sailors, Boats, Reserves Where Boats.D  <= 104

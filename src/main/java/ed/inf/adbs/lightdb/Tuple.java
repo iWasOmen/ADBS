@@ -56,7 +56,6 @@ public class Tuple {
         return schemaTupleMap.get(columnName);
     }
 
-    //不支持Boat.*
     public void projectTuple(List<String> selectTables, List<String> selectColums) {
         long[] tupleAfterProject = new long[selectTables.size()];
         for(int i = 0; i < selectTables.size(); i++){

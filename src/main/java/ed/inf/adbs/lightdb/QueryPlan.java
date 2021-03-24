@@ -1,29 +1,44 @@
 package ed.inf.adbs.lightdb;
 
+import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
 
 import java.util.*;
 
 public class QueryPlan {
-    private FromItem firstTable;
+    private String firstTableName;
     private Expression exp;
     private ExpressionList selectExpressionList;
     private ExpressionList whereExpressionList;
     List<SelectItem> selectItems;
     List<Join> joinTables;
     List<String> selectTableNames;
-    //List<String> whereTableNames;
+    List<String> oringinalTableNames;
+    List<String> whereTableNames;
     Operator rootOperator;
     DBCatalog dbc = DBCatalog.getInstance();
 
-    public QueryPlan(Statement statement) {
+    public QueryPlan(Statement statement) throws JSQLParserException {
         Select select = (Select) statement;
         PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
-        this.firstTable =  plainSelect.getFromItem();
+        oringinalTableNames = new ArrayList<>();
+        if(plainSelect.getFromItem().getAlias() != null) {
+            this.firstTableName = plainSelect.getFromItem().toString().split(" ")[1];
+            oringinalTableNames.add(plainSelect.getFromItem().toString().split(" ")[0]);
+        }
+        else {
+            this.firstTableName = plainSelect.getFromItem().toString();
+            oringinalTableNames.add(plainSelect.getFromItem().toString());
+        }
+        System.out.println("firstTable:"+ firstTableName);
+        //System.out.println("firstTable:"+ plainSelect.getFromItem().toString().split(" ")[0]);
         this.exp = plainSelect.getWhere();
         this.selectItems = plainSelect.getSelectItems();
         this.joinTables = plainSelect.getJoins();
@@ -32,7 +47,7 @@ public class QueryPlan {
             this.selectExpressionList = extractWhere.getSelectExpressionList();
             this.whereExpressionList = extractWhere.getWhereExpressionList();
             this.selectTableNames = extractWhere.getSelectTableNames();
-            //this.whereTableNames = extractWhere.getWhereTableNames();
+            this.whereTableNames = extractWhere.getWhereTableNames();
 
             System.out.println("--------------------");
             System.out.println("selectTableNames:" + selectTableNames);
@@ -90,30 +105,51 @@ public class QueryPlan {
 
     }
 
-    private HashMap<Set<String>,Expression> conncetWhereExpressions(List<String> tableNames){
-        Set<Expression> whereExpressionSet = new HashSet<>(whereExpressionList.getExpressions());
+    private HashMap<Set<String>,Expression> conncetWhereExpressions(List<String> tableNames) throws JSQLParserException {
+        Set<Expression> whereExpressionSet = new HashSet<>();
+        if(whereTableNames.size() != 0)
+            whereExpressionSet = new HashSet<>(whereExpressionList.getExpressions());
         HashMap<Set<String>,Expression> whereTableNamesExpressionMap = new HashMap<>();
+        Set<String> lastWhereTableNamesKey = new HashSet<>();
+        lastWhereTableNamesKey.add(tableNames.get(0));
         for(int i = 0; i < tableNames.size()-1; i++){
             Expression newExpression = null;
+            System.out.println("newExpression:"+newExpression);
+            //new AndExpression();
+            //new AndExpression(CCJSqlParserUtil.parse("1=1"));
             Set<String> whereTableNamesKey = new HashSet<>();
-            for(Expression oneWhereExpression:whereExpressionSet) {
-                if (oneWhereExpression.toString().contains(tableNames.get(i + 1))) {
-                    for (int j = 0; j < i + 1; j++)
-                        if (oneWhereExpression.toString().contains(tableNames.get(j))) {
-                            whereTableNamesKey.add(tableNames.get(i + 1));
-                            whereTableNamesKey.add(tableNames.get(j));
-                            if(newExpression == null)
-                                newExpression = oneWhereExpression;
-                            else {
-                                Expression leftExpression = oneWhereExpression;
-                                Expression rightExpression = newExpression;
-                                newExpression = new AndExpression(leftExpression, rightExpression);
+            whereTableNamesKey.addAll(lastWhereTableNamesKey);
+            whereTableNamesKey.add(tableNames.get(i + 1));
+            if(whereTableNames.size() != 0) {
+                for (Expression oneWhereExpression : whereExpressionSet) {
+                    if (oneWhereExpression.toString().contains(tableNames.get(i + 1))) {
+                        for (int j = 0; j < i + 1; j++) {
+                            if (oneWhereExpression.toString().contains(tableNames.get(j))) {
+                                //whereTableNamesKey.add(tableNames.get(i + 1));
+                                //whereTableNamesKey.add(tableNames.get(j));
+                                if (newExpression == null)
+                                    newExpression = oneWhereExpression;
+                                else {
+                                    Expression leftExpression = oneWhereExpression;
+                                    Expression rightExpression = newExpression;
+                                    newExpression = new AndExpression(leftExpression, rightExpression);
+                                }
                             }
                         }
+                    }
                 }
+
+                if (newExpression == null) {
+                    Expression fixExpression = new EqualsTo(new LongValue("1"),new LongValue("1"));
+                    Expression leftExpression = fixExpression;
+                    Expression rightExpression = newExpression;
+                    newExpression = new AndExpression(leftExpression, rightExpression);
+                    whereTableNamesExpressionMap.put(whereTableNamesKey, newExpression);
+                }
+                else
+                    whereTableNamesExpressionMap.put(whereTableNamesKey, newExpression);
             }
-            if(newExpression != null)
-                whereTableNamesExpressionMap.put(whereTableNamesKey,newExpression);
+
         }
 //        for(int i = 0; i< whereTableNames.size(); i = i + 2){
 //            Set<String> whereTableNamesKey = new HashSet<>();
@@ -134,13 +170,25 @@ public class QueryPlan {
     private List<String> generateAllTableNames(){
 
         List<String> tableNames = new ArrayList<>();
-        String firstTableName = firstTable.toString();
         tableNames.add(firstTableName);
         if(joinTables!=null) {
             for (Join eachTable : joinTables) {
-                tableNames.add(eachTable.toString());
+                System.out.println("eachTable:"+eachTable);
+                if(eachTable.toString().split(" ").length>1)
+                {
+                    oringinalTableNames.add(eachTable.toString().split(" ")[0]);
+                    tableNames.add(eachTable.toString().split(" ")[1]);
+                }
+                //eachTable.toString().split("")[0];
+                else {
+                    oringinalTableNames.add(eachTable.toString());
+                    tableNames.add(eachTable.toString());
+                }
             }
+            //System.out.println("tableNames:" + tableNames);
         }
+        DBCatalog dbc = DBCatalog.getInstance();
+        dbc.setTableSchema(tableNames,oringinalTableNames);
 
         System.out.println("tableNames:" + tableNames);
 
@@ -149,15 +197,17 @@ public class QueryPlan {
     }
 
 
-    private void constractQueryPlan() {
+    private void constractQueryPlan() throws JSQLParserException {
 
         List<String> tableNames = generateAllTableNames();
         HashMap<String, Expression> selectTableNamesExpressionMap = null;
         HashMap<Set<String>,Expression> whereTableNamesExpressionMap = null;
-        if (selectTableNames != null)
+        if (selectExpressionList != null)
             selectTableNamesExpressionMap = conncetSelectExpressions();
-        if(whereExpressionList != null)
+        if(oringinalTableNames.size() > 1) {
+            System.out.println("whereExpressionList:" + whereTableNames);
             whereTableNamesExpressionMap = conncetWhereExpressions(tableNames);
+        }
 
 
         //initialize Scan Operator
@@ -180,8 +230,9 @@ public class QueryPlan {
         //initialize Scan Operator way 2
         //List<Operator> scanOperators = new ArrayList<>();
         List<OperatorTreeNode> scanOperatorNodesList = new ArrayList<>();
-        for (String eachTableName : tableNames) {
-            ScanOperator scanOperator = new ScanOperator(eachTableName);
+        for(int i = 0; i < tableNames.size(); i++){
+        //for (String eachTableName: tableNames) {
+            ScanOperator scanOperator = new ScanOperator(tableNames.get(i), oringinalTableNames.get(i));
             OperatorTreeNode scanOperatorNode = new OperatorTreeNode(scanOperator, null, null, null);
             scanOperatorNodesList.add(scanOperatorNode);
         }
@@ -205,6 +256,7 @@ public class QueryPlan {
             }
         }
 
+        //join tables
         Set<Expression> haveAddedExpressionsSet = new HashSet<>();
         if(tableNames.size() > 1){
             JoinOperator joinOperator;

@@ -15,7 +15,7 @@ public class ExtractWhere {
     ExpressionList selectExpressionList = new ExpressionList();
     ExpressionList whereExpressionList = new ExpressionList();
     List<String> selectTableNames = new ArrayList<>();
-    //List<String> whereTableNames = new ArrayList<>();
+    List<String> whereTableNames = new ArrayList<>();
 
     public ExtractWhere(Expression parseExpression) {
         final Stack<Expression> stackExpression = new Stack<Expression>();
@@ -50,8 +50,8 @@ public class ExtractWhere {
                         //two exps have different table name, add to oneWhereExpression
                     else {
                         whereExpressionList.addExpressions(expression);
-                        //whereTableNames.add(str1);
-                        //whereTableNames.add(str2);
+                        whereTableNames.add(str1);
+                        whereTableNames.add(str2);
                     }
                 }
             }
@@ -67,7 +67,7 @@ public class ExtractWhere {
                 super.visit(column);
                 stackExpression.push(column);
                 stackString.push(column.getTable().getName());
-                //System.out.println("column:"+column.getTable().getName());
+                System.out.println("column:"+column.getTable().getName());
             }
 
             @Override
@@ -149,8 +149,8 @@ public class ExtractWhere {
         return selectTableNames;
     }
 
-//    public List<String> getWhereTableNames(){
-//        return whereTableNames;
-//    }
+    public List<String> getWhereTableNames(){
+        return whereTableNames;
+    }
 
 }
