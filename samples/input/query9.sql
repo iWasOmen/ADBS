@@ -1,1 +1,0 @@
-SELECT Sailors.A,Reserves.G,Boats.D FROM Sailors, Boats, Reserves Where Boats.D  <= 104

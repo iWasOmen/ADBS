@@ -1,1 +1,1 @@
-SELECT Sailors.A, Sailors.B FROM Sailors Where Sailors.A > 3 AND Sailors.B = 100 AND 1=1;
+SELECT Sailors.A FROM Sailors;

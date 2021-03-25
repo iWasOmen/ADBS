@@ -4,6 +4,7 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 
 import java.io.FileReader;
+import java.util.List;
 
 public class Interpreter {
 
@@ -22,7 +23,10 @@ public class Interpreter {
         }
     }
 
-    public void excute(){
-        rootOperator.dump();
+    public List<Tuple> excute(){
+        List<Tuple> result;
+        result = rootOperator.dump();
+        return result;
+
     }
 }

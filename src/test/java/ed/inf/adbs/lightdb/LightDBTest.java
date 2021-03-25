@@ -12,18 +12,14 @@ public class LightDBTest{
 	/**
 	 * Rigorous Test :-)
 	 */
-	@Test
-	public void shouldAnswerWithTrue() {
-		LightDB.parsingExample("1");
-		assertTrue(true);
-	}
+
 
 	@Test
 	public void mainTest(){
 		String j = null;
-		for(int i = 1; i<13; i++) {
+		for(int i = 1; i<9; i++) {
 			j = String.valueOf(i);
-			String[] args = new String[]{"samples/db", "samples/input/query" + j + ".sql", "samples/output/query4.csv"};
+			String[] args = new String[]{"samples/db", "samples/input/query" + j + ".sql", "output/query" + j + ".csv"};
 			LightDB.main(args);
 		}
 		//LightDB.main(args);
@@ -31,7 +27,7 @@ public class LightDBTest{
 
 	@Test
 	public void mainSingleTest(){
-		String[] args = new String[]{"samples/db", "samples/input/query7.sql", "samples/output/query4.csv"};
+		String[] args = new String[]{"samples/db", "samples/input/query6.sql", "output/query7.csv"};
 		LightDB.main(args);
 
 		//LightDB.main(args);
