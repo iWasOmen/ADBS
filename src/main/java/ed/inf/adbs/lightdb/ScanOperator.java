@@ -1,17 +1,21 @@
 package ed.inf.adbs.lightdb;
 
-//import sun.security.mscapi.PRNG;
-
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 
+/**
+ * ScanOperator Class to support scan file and generate tuple.
+ */
 public class ScanOperator extends Operator {
     private String dir;
     private BufferedReader br;
     private String tableName;
 
+    /**
+     * Initialize ScanOperator by tableName(alias) and oringinalTableName.
+     * @param tableName tableName(alias)
+     * @param oringinalTableName oringinalTableName
+     */
     public ScanOperator(String tableName, String oringinalTableName){
         try
         {
@@ -28,6 +32,10 @@ public class ScanOperator extends Operator {
         }
     }
 
+    /**
+     * Get next tuple.
+     * @return tuple
+     */
     @Override
     public Tuple getNextTuple(){
         try{
@@ -45,6 +53,9 @@ public class ScanOperator extends Operator {
         return null;
     }
 
+    /**
+     * reset operator.
+     */
     @Override
     public void reset() {
         try {
@@ -58,6 +69,10 @@ public class ScanOperator extends Operator {
         }
     }
 
+    /**
+     * Get the table name.
+     * @return tableName
+     */
     public String getTableName(){
         return tableName;
     }

@@ -1,0 +1,3 @@
+The overall logic for extracting join conditions is that: according to the table name on both sides of the symbol, it is judged whether it is a select or a join expression, and the output is split into independent select and join expression lists in the ExtractWhere Class, and then the expressions of the same table and the same type are merged in the QueryPlan Class, and an AND expression is constructed.
+
+Please see more details in ExtractWhere Class and QueryPlan Class, and also other Class. You may use @explanation to search some hlight comments.

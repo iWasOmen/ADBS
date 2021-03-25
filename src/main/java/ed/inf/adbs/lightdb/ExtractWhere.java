@@ -5,31 +5,47 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
-
-import javax.print.DocFlavor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+/**
+ * ExtractWhere Class to extract select and join conditions from the WHERE claus.
+ * Part of details about explanation of extracting join conditions from the WHERE clause.
+ */
 public class ExtractWhere {
     ExpressionList selectExpressionList = new ExpressionList();
-    ExpressionList whereExpressionList = new ExpressionList();
+    ExpressionList joinExpressionList = new ExpressionList();
     List<String> selectTableNames = new ArrayList<>();
-    List<String> whereTableNames = new ArrayList<>();
+    List<String> joinTableNames = new ArrayList<>();
 
+    /**
+     * Construct ExtractWhere Class.
+     * @param parseExpression the WHERE claus
+     */
     public ExtractWhere(Expression parseExpression) {
         final Stack<Expression> stackExpression = new Stack<Expression>();
         final Stack<String> stackString = new Stack<String>();
         ExpressionDeParser deparser = new ExpressionDeParser() {
-
-            //compare two expression, and decide to add to which ExpressionList
+            /**
+             * Extends the ExpressionDeParser.
+             * Use a String stack and a Expression stack to compute the result.
+             */
+            /*
+            @explanation
+            Compare two expression, and decide to add to which ExpressionList.
+             */
             public void compareExpression(Expression expression) {
                 DBCatalog dbc = DBCatalog.getInstance();
                 Expression exp2 = stackExpression.pop();
                 Expression exp1 = stackExpression.pop();
                 String str2 = stackString.pop();
                 String str1 = stackString.pop();
-                //both or one of exp is long, add to oneSelectExpression
+
+                /*
+                @explanation
+                Both or one of exps is long, add to oneSelectExpression
+                 */
                 if (exp1.getClass() == LongValue.class || exp2.getClass() == LongValue.class) {
                     selectExpressionList.addExpressions(expression);
                     if(exp1.getClass() == Column.class)
@@ -39,35 +55,37 @@ public class ExtractWhere {
                     else
                         selectTableNames.add(dbc.getConstantTableName());
                 }
-                //both of two exps are columns
+                /*
+                @explanation
+                both of two exps are columns
+                */
                 else {
-                    //two exps have same table names, add to oneSelectExpression
+                    /*
+                    @explanation
+                    Two exps have same table names, add to oneSelectExpression
+                    */
                     if (str2.equals(str1)) {
-                        selectExpressionList.addExpressions(expression, expression);
+                        selectExpressionList.addExpressions(expression);
                         selectTableNames.add(str1);
                     }
-                        //selectExpressionList.addExpressions(expression);
-                        //two exps have different table name, add to oneWhereExpression
+                    /*
+                    @explanation
+                    Two exps have different table name, add to oneJoinExpression
+                     */
                     else {
-                        whereExpressionList.addExpressions(expression);
-                        whereTableNames.add(str1);
-                        whereTableNames.add(str2);
+                        joinExpressionList.addExpressions(expression);
+                        joinTableNames.add(str1);
+                        joinTableNames.add(str2);
                     }
                 }
             }
-
-
-//            @Override
-//            public void visit(AndExpression andExpression) {
-//                super.visit(andExpression);
-//            }
 
             @Override
             public void visit(Column column) {
                 super.visit(column);
                 stackExpression.push(column);
                 stackString.push(column.getTable().getName());
-                System.out.println("column:"+column.getTable().getName());
+                //System.out.println("column:"+column.getTable().getName());
             }
 
             @Override
@@ -81,53 +99,40 @@ public class ExtractWhere {
             @Override
             public void visit(EqualsTo equalsTo) {
                 super.visit(equalsTo);
-                //System.out.println("qqqq");
-
                 compareExpression(equalsTo);
-
             }
 
             @Override
             public void visit(NotEqualsTo notEqualsTo) {
                 super.visit(notEqualsTo);
-
                 compareExpression(notEqualsTo);
-
             }
 
             @Override
             public void visit(GreaterThan greaterThan) {
                 super.visit(greaterThan);
                 compareExpression(greaterThan);
-
             }
 
             @Override
             public void visit(GreaterThanEquals greaterThanEquals) {
                 super.visit(greaterThanEquals);
-
                 compareExpression(greaterThanEquals);
-
             }
 
             @Override
             public void visit(MinorThan minorThan) {
                 super.visit(minorThan);
-
                 compareExpression(minorThan);
-
             }
 
             @Override
             public void visit(MinorThanEquals minorThanEquals) {
                 super.visit(minorThanEquals);
-
                 compareExpression(minorThanEquals);
             }
-
         };
-//        StringBuilder b = new StringBuilder();
-//        deparser.setBuffer(b);
+
         parseExpression.accept(deparser);
 //        boolean result = (boolean)stackBool.pop();
 //        System.out.println("result:" + result +"\n");
@@ -135,22 +140,35 @@ public class ExtractWhere {
 
     }
 
+    /**
+     * Get the selectExpressionList.
+     * @return selectExpressionList
+     */
     public ExpressionList getSelectExpressionList(){
-        //return selectExpressionList;
         return selectExpressionList;
     }
 
-    public ExpressionList getWhereExpressionList(){
-        //return whereExpressionList;
-        return whereExpressionList;
+    /**
+     * Get the joinExpressionList.
+     * @return joinExpressionList
+     */
+    public ExpressionList getJoinExpressionList(){
+        return joinExpressionList;
     }
 
+    /**
+     * Get the selectTableNames.
+     * @return selectTableNames.
+     */
     public List<String> getSelectTableNames(){
         return selectTableNames;
     }
 
+    /**
+     * Get the joinTableNames.
+     * @return joinTableNames
+     */
     public List<String> getWhereTableNames(){
-        return whereTableNames;
+        return joinTableNames;
     }
-
 }

@@ -3,16 +3,23 @@ package ed.inf.adbs.lightdb;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * DuplicateEliminationOperator to realize distinct function.
+ */
 public class DuplicateEliminationOperator extends Operator {
     Operator child;
     Tuple lastTuple;
     boolean ifFirstTuple = true;
-    List<Tuple> allTupleList;
 
 
     public DuplicateEliminationOperator(Operator child){
         this.child = child;
     }
+
+    /**
+     * Get next tuple.
+     * @return tuple
+     */
     @Override
     public Tuple getNextTuple() {
         Tuple tuple;
@@ -24,6 +31,13 @@ public class DuplicateEliminationOperator extends Operator {
         return null;
     }
 
+    /**
+     * Delete the duplication. Has a ifFirstTuple flag to determine if it is first run
+     * in order to judge whether assign value to lastTuple or not. If the new tuple is same as last tuple,
+     * return null.
+     * @param tuple tuple
+     * @return tuple
+     */
     private Tuple duplicateElimination(Tuple tuple){
         if(ifFirstTuple) {
             ifFirstTuple = false;
@@ -41,7 +55,9 @@ public class DuplicateEliminationOperator extends Operator {
 
     }
 
-
+    /**
+     * reset operator.
+     */
     @Override
     public void reset() {
         child.reset();

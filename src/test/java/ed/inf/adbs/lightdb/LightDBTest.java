@@ -17,7 +17,7 @@ public class LightDBTest{
 	@Test
 	public void mainTest(){
 		String j = null;
-		for(int i = 1; i<9; i++) {
+		for(int i = 1; i<10; i++) {
 			j = String.valueOf(i);
 			String[] args = new String[]{"samples/db", "samples/input/query" + j + ".sql", "output/query" + j + ".csv"};
 			LightDB.main(args);
@@ -27,7 +27,7 @@ public class LightDBTest{
 
 	@Test
 	public void mainSingleTest(){
-		String[] args = new String[]{"samples/db", "samples/input/query6.sql", "output/query7.csv"};
+		String[] args = new String[]{"samples/db", "samples/input/query9.sql", "output/query10.csv"};
 		LightDB.main(args);
 
 		//LightDB.main(args);

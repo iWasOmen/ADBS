@@ -6,66 +6,73 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
-
 import java.util.Arrays;
 import java.util.Stack;
 
+/**
+ * JoinEvaluate Class to read the join expression and gives a result.
+ */
 public class JoinEvaluate {
     private Expression parseExpression;
     private Tuple leftTuple;
     private Tuple rightTuple;
 
+    /**
+     * Initialize the JoinEvaluate Class based on join expression.
+     * @param parseExpression join expression
+     */
     public JoinEvaluate(Expression parseExpression) {
         this.parseExpression = parseExpression;
     }
 
+    /**
+     * Evaluate left tuple and right tuple on join expression.
+     * @param leftTuple left tuple
+     * @param rightTuple right tuple
+     * @return result
+     */
     public Boolean evaluate(Tuple leftTuple, Tuple rightTuple){
         final Stack<Long> stackLong = new Stack<Long>();
         final Stack<Boolean> stackBool = new Stack<Boolean>();
-        //Tuple tuple;
         //System.out.println("---------------------join-----------------------");
         //System.out.println("leftTuple：" + Arrays.toString(leftTuple.getTupleArray()));
         //System.out.println("rightTuple：" + Arrays.toString(rightTuple.getTupleArray()));
         //System.out.println("expression：" + parseExpression);
         ExpressionDeParser deparser = new ExpressionDeParser() {
+            /**
+             * Extends the ExpressionDeParser.
+             * Use a long stack and a boolean stack to compute the result.
+             */
             @Override
             public void visit(AndExpression andExpression) {
-                //System.out.println("this and 1");
                 super.visit(andExpression);
-                //System.out.println("this and 2");
-
                 Boolean exp2 = stackBool.pop();
                 Boolean exp1 = stackBool.pop();
-
                 stackBool.push(exp1 & exp2 );
-                //System.out.println("this and 3");
             }
+
+            /**
+             * Based on column name and table name, look for the column data for that tuple.
+             * @param column column
+             */
             @Override
             public void visit(Column column) {
                 super.visit(column);
-                Tuple tuple;
+                Tuple tuple = null;
                 String tableName = column.getTable().getName();
                 //String columnName = column.getColumnName();
                 String tableColumnName = column.getFullyQualifiedName();
-                //System.out.println("qqqqqtableColumnName"+tableColumnName);
-                //System.out.println("11111tableName"+tableName);
-                if (leftTuple.getTupleTableName().contains(tableName)) {
+                //System.out.println("tableColumnName"+tableColumnName);
+                if (Arrays.toString(leftTuple.getTupleSchema()).contains(tableColumnName)) {
                     tuple = leftTuple;
-                    //System.out.println("leftTuple");
+                    //System.out.println("leftTuple:"+Arrays.toString(leftTuple.getTupleSchema()));
                 }
-                else {
+                else if(Arrays.toString(rightTuple.getTupleSchema()).contains(tableColumnName)) {
                     tuple = rightTuple;
-                    //System.out.println("rightTuple");
+                    //System.out.println("rightTuple:"+Arrays.toString(rightTuple.getTupleSchema()));
                 }
                 long columNumber = tuple.getTupleNumber(tableColumnName);
-//                System.out.println("Schemaneed:" + tableName);
-//                System.out.println("columnneed:" + columnName);
-//                System.out.println("Schemaget:" + Arrays.toString(tableSchema));
-//                System.out.println("columNumber:" + columNumber);
-
-                //每个属性都存了一遍hashmap，成本高
                 stackLong.push(columNumber);
-                //System.out.println("this column 3");
             }
 
             @Override
@@ -78,8 +85,8 @@ public class JoinEvaluate {
             public void visit(EqualsTo equalsTo) {
                 super.visit(equalsTo);
 
-                Long exp1 = stackLong.pop();
                 Long exp2 = stackLong.pop();
+                Long exp1 = stackLong.pop();
                 if (exp1.equals(exp2))
                     stackBool.push(true);
                 else
@@ -151,8 +158,6 @@ public class JoinEvaluate {
             }
         };
 
-        StringBuilder b = new StringBuilder();
-        deparser.setBuffer(b);
         parseExpression.accept(deparser);
         boolean result = (boolean)stackBool.pop();
         //System.out.println("result:" + result +"\n");

@@ -1,23 +1,27 @@
 package ed.inf.adbs.lightdb;
 
-//import com.sun.org.apache.xerces.internal.xs.StringList;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Tuple Class to store information about tuple data, tupleTableName, and tupleSchema.
+ */
 public class Tuple {
 
     private long[] tuple;
     private String tupleTableName;
     private String[] tupleSchema;
 
+    /**
+     * Initialize a Tuple Class for scan operator.
+     * @param tupleStr the string tuple from file
+     * @param tupleTableName tupleTableName
+     */
     public Tuple(String tupleStr,String tupleTableName) {
         this.tupleTableName = tupleTableName;
         DBCatalog dbc = DBCatalog.getInstance();
         tupleSchema = dbc.getTableSchema(tupleTableName);
-        //System.out.println("tupleSchema111:"+tupleSchema.toString());
+        //System.out.println("tupleSchema:"+tupleSchema.toString());
         String[] temp = tupleStr.split(",");
         tuple = new long[temp.length];
         for (int i = 0; i < temp.length; i++) {
@@ -25,6 +29,12 @@ public class Tuple {
         }
     }
 
+    /**
+     * Initialize a Tuple Class for join operator.
+     * Connect left and right to become a new tuple.
+     * @param leftTuple leftTuple
+     * @param rightTuple rightTuple
+     */
     public Tuple(Tuple leftTuple, Tuple rightTuple){
         long[] newTuple = new long[leftTuple.getTupleArray().length+rightTuple.getTupleArray().length];
         String[] newTupleSchema = new String[leftTuple.getTupleSchema().length + rightTuple.getTupleSchema().length-1];
@@ -39,74 +49,58 @@ public class Tuple {
         this.tupleTableName = newTupleTableName;
         this.tupleSchema = newTupleSchema;
         //System.out.println("tupleSchema:"+newTupleSchema);
-
     }
 
-
+    /**
+     * Get the tuple array.
+     * @return tuple array
+     */
     public long[] getTupleArray() {
         return tuple;
     }
 
+    /**
+     * Get a column data based on tableColumnName.
+     * @param tableColumnName tableColumnName. Input format example: S.A
+     * @return the column data of that tableColumnName
+     */
     public long getTupleNumber(String tableColumnName) {
-        //不支持同名column
         HashMap<String, Long> schemaTupleMap = new HashMap<>();
         for (int i = 0; i < tuple.length; i++) {
-            //System.out.println("tupleTableName:"+tupleTableName);
-            //System.out.println("tableColumnName:"+tableColumnName);
-            //schemaTupleMap.put(tupleSchema[0] + "." + tupleSchema[i + 1], tuple[i]);
             schemaTupleMap.put(tupleSchema[i + 1], tuple[i]);
-            //schemaTupleMap.put(tupleSchema[i + 1], tuple[i]);
-            //System.out.println("schemaTupleMap:"+schemaTupleMap);
         }
-        //System.out.println("schemaTupleMap:"+schemaTupleMap);
-        //System.out.println("tableColumnName:"+tableColumnName);
         return schemaTupleMap.get(tableColumnName);
     }
 
+    /**
+     * Project tuple based on selectTables and selectColums.
+     * @param selectTables selectTables
+     * @param selectColums selectColums
+     */
     public void projectTuple(List<String> selectTables, List<String> selectColums) {
         long[] tupleAfterProject = new long[selectTables.size()];
+        String[] tupleSchemaAfterProject = new String[selectTables.size()+1];
+        tupleSchemaAfterProject[0] = tupleSchema[0];
         for(int i = 0; i < selectTables.size(); i++){
             tupleAfterProject[i] = getTupleNumber(selectColums.get(i));
+            tupleSchemaAfterProject[i] = selectColums.get(i);
         }
         tuple = tupleAfterProject;
+        tupleSchema =tupleSchemaAfterProject;
     }
 
+    /**
+     * Get the tuple table name.
+     * Use alias if has one.
+     * @return tupleTableName
+     */
     public String getTupleTableName(){
         return tupleTableName;
     }
 
-    public String[] getTupleSchema(){return tupleSchema;}
-
-//    public Tuple join(Tuple rightTuple){
-////        long[] newTuple = new long[this.getTupleArray().length+rightTuple.getTupleArray().length];
-////        String[] newTupleSchema = new String[this.getTupleSchema().length + rightTuple.getTupleSchema().length-1];
-////        System.arraycopy(this.getTupleArray(),0,newTuple,0,this.getTupleArray().length);
-////        System.arraycopy(rightTuple.getTupleArray(),0,newTuple,this.getTupleArray().length,rightTuple.getTupleArray().length);
-//        String newTupleTableName = this.getTupleTableName()+rightTuple.getTupleTableName();
-////        System.arraycopy(newTupleTableName,0,newTupleSchema,0,newTupleSchema.length);
-////        System.arraycopy(this.getTupleSchema(),1,newTupleSchema,0,this.getTupleSchema().length-1);
-//        List<Long> newTupleList = new ArrayList<>();
-//        for(long tupleNumber:this.getTupleArray())
-//            newTupleList.add(tupleNumber);
-//        for(long tupleNumber:rightTuple.getTupleArray())
-//            newTupleList.add(tupleNumber);
-//        long[] newTuple = new long[newTupleList.size()];
-//        for(int i =0;i<newTupleList.size();i++)
-//            newTuple[i] = newTupleList.get(i);
-//
-//        List<String> newTupleSchemaList = new ArrayList<>();
-//        for(int i =1;i<this.getTupleSchema().length;i++)
-//            newTupleSchemaList.add(this.getTupleSchema()[i]);
-//        for(int i =1;i<rightTuple.getTupleSchema().length;i++)
-//            newTupleSchemaList.add(rightTuple.getTupleSchema()[i]);
-//        String[] newTupleSchema = new String[newTupleSchemaList.size()+1];
-//        newTupleSchema[0] = newTupleTableName;
-//        for(int i =0;i<newTupleSchemaList.size();i++)
-//            newTupleSchema[i+1] = newTupleSchemaList.get(i);
-//
-//        this.tuple = newTuple;
-//        this.tupleTableName = newTupleTableName;
-//        this.tupleSchema = newTupleSchema;
-//        return this;
-//    }
+    /**
+     * Get the tuple schema. Format example: [S, S.A, S.B, S.C]
+     * @return tupleSchema
+     */
+    public String[] getTupleSchema(){ return tupleSchema;}
 }

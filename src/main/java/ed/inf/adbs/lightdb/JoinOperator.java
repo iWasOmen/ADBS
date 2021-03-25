@@ -2,6 +2,9 @@ package ed.inf.adbs.lightdb;
 
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * JoinOperator Class to support join function.
+ */
 public class JoinOperator extends Operator {
 
     Operator leftChild;
@@ -10,6 +13,12 @@ public class JoinOperator extends Operator {
     Tuple leftTuple;
     Expression parseExpression;
 
+    /**
+     * Initialize a JoinOperator Class.
+     * @param parseExpression join expression.
+     * @param leftChild leftChild
+     * @param rightChild rightChild
+     */
     public JoinOperator(Expression parseExpression, Operator leftChild, Operator rightChild){
         this.parseExpression = parseExpression;
         this.leftChild = leftChild;
@@ -20,6 +29,10 @@ public class JoinOperator extends Operator {
         }
     }
 
+    /**
+     * Set join expression.
+     * @param parseExpression join expression
+     */
     public void setExpression(Expression parseExpression){
         if(parseExpression != null) {
             this.parseExpression = parseExpression;
@@ -29,10 +42,17 @@ public class JoinOperator extends Operator {
         }
     }
 
+    /**
+     * push the next tuple of leftChild when start.
+     */
     public void initialize(){
         this.leftTuple = leftChild.getNextTuple();
     }
 
+    /**
+     * Get next tuple.
+     * @return tuple
+     */
     @Override
     public Tuple getNextTuple() {
         //Tuple leftTuple = this.leftTuple;
@@ -56,10 +76,12 @@ public class JoinOperator extends Operator {
         return null;
     }
 
+    /**
+     * reset operator.
+     */
     @Override
     public void reset() {
         leftChild.reset();
         rightChild.reset();
     }
-
 }

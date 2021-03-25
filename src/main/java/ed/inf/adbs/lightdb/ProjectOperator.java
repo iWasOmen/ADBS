@@ -5,12 +5,20 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ProjectOperator Class to realize a project function.
+ */
 public class ProjectOperator extends Operator {
 
     Operator child;
     List<String> selectTables = new ArrayList<>();
     List<String> selectColumns = new ArrayList<>();
 
+    /**
+     * Initialize a ProjectOperator Class based on selectItems and child operator.
+     * @param selectItems selectItems
+     * @param child child operator
+     */
     public ProjectOperator(List<SelectItem> selectItems, Operator child){
         this.child = child;
         for(int i=0; i < selectItems.size(); i++){
@@ -21,6 +29,10 @@ public class ProjectOperator extends Operator {
         }
     }
 
+    /**
+     * Get next tuple.
+     * @return tuple
+     */
     @Override
     public Tuple getNextTuple() {
         Tuple tuple;
@@ -31,10 +43,11 @@ public class ProjectOperator extends Operator {
         return null;
     }
 
+    /**
+     * reset operator.
+     */
     @Override
     public void reset() {
         child.reset();
     }
-
-
 }
