@@ -25,8 +25,5 @@ public class SelectOperator extends Operator {
         child.reset();
     }
 
-    @Override
-    public String getTableName() {
-        return null;
-    }
+
 }

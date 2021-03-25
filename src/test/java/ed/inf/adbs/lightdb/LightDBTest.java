@@ -31,7 +31,7 @@ public class LightDBTest{
 
 	@Test
 	public void mainSingleTest(){
-		String[] args = new String[]{"samples/db", "samples/input/query2.sql", "samples/output/query4.csv"};
+		String[] args = new String[]{"samples/db", "samples/input/query7.sql", "samples/output/query4.csv"};
 		LightDB.main(args);
 
 		//LightDB.main(args);

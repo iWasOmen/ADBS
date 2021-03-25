@@ -22,6 +22,8 @@ public class QueryPlan {
     List<String> selectTableNames;
     List<String> oringinalTableNames;
     List<String> whereTableNames;
+    List<OrderByElement> orderByElements;
+    private Distinct distinct;
     Operator rootOperator;
     DBCatalog dbc = DBCatalog.getInstance();
 
@@ -56,6 +58,10 @@ public class QueryPlan {
             System.out.println("getWhereExpressionList:" + whereExpressionList);
             System.out.println("--------------------");
         }
+        this.orderByElements = plainSelect.getOrderByElements();
+        this.distinct = plainSelect.getDistinct();
+        System.out.println("orderByElements: " + orderByElements);
+        System.out.println("distinct: " + distinct);
         //selectExpressionList.getExpressions().add(new AndExpression());
 
 
@@ -242,7 +248,7 @@ public class QueryPlan {
             //List<OperatorTreeNode> selectOperatorNodesList = new ArrayList<>();
             SelectOperator selectOperator;
             for (OperatorTreeNode scanOperatorNode : scanOperatorNodesList) {
-                String tableName = scanOperatorNode.getOperator().getTableName();
+                String tableName = scanOperatorNode.getScanOperator().getTableName();
                 if (selectTableNamesExpressionMap.containsKey(tableName)) {
                     selectOperator = new SelectOperator(selectTableNamesExpressionMap.get(tableName), scanOperatorNode.getOperator());
                     OperatorTreeNode selectOperatorNode = new OperatorTreeNode(selectOperator, scanOperatorNode, null, null);
@@ -282,6 +288,20 @@ public class QueryPlan {
         if(selectItems.get(0).toString() != "*"){
             ProjectOperator projectOperator = new ProjectOperator(selectItems,scanOperatorNodesList.get(0).getRootNode().getOperator());
             OperatorTreeNode projectOperatorNode = new OperatorTreeNode(projectOperator,scanOperatorNodesList.get(0).getRootNode(),null,null);
+        }
+
+        //order by
+        if(orderByElements != null){
+            SortOperator sortOperator = new SortOperator(orderByElements,scanOperatorNodesList.get(0).getRootNode().getOperator());
+            OperatorTreeNode sortOperatorNode = new OperatorTreeNode(sortOperator,scanOperatorNodesList.get(0).getRootNode(),null,null);
+        }
+
+        //distinct
+        if(distinct != null){
+            SortOperator sortOperator = new SortOperator(scanOperatorNodesList.get(0).getRootNode().getOperator());
+            OperatorTreeNode sortOperatorNode = new OperatorTreeNode(sortOperator,scanOperatorNodesList.get(0).getRootNode(),null,null);
+            DuplicateEliminationOperator duplicateEliminationOperator = new DuplicateEliminationOperator(sortOperator);
+            OperatorTreeNode DuplicateEliminationOperatorNode = new OperatorTreeNode(duplicateEliminationOperator,scanOperatorNodesList.get(0).getRootNode(),null,null);
         }
 
 

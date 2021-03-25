@@ -62,8 +62,4 @@ public class JoinOperator extends Operator {
         rightChild.reset();
     }
 
-    @Override
-    public String getTableName() {
-        return null;
-    }
 }

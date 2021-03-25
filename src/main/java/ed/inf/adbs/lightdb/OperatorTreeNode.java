@@ -28,11 +28,14 @@ public class OperatorTreeNode {
         }
         if (operator != null) {
             if (operator.getClass() == ScanOperator.class)
-                leafNodeTableNamesSet.add(operator.getTableName());
+                leafNodeTableNamesSet.add(((ScanOperator) operator).getTableName());
         }
     }
     public Operator getOperator() {
         return operator;
+    }
+    public ScanOperator getScanOperator() {
+        return (ScanOperator)operator;
     }
     public void setData(Operator operator) {
         this.operator = operator;
